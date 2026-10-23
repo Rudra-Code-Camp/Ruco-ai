@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruco AI by RudraCodes - High School Learning Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            accent: '#a855f7'
+                        },
+                        darkbg: '#0b0f19',
+                        cardbg: '#111827',
+                        glass: 'rgba(17, 24, 39, 0.75)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- KaTeX for math formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.3);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header & Navigation -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-white text-xl font-bold glow-effect">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-brand-500">Ruco AI</span>
+                        <span class="text-xs bg-brand-500/20 text-brand-500 border border-brand-500/30 px-2 py-0.5 rounded-full font-medium">v2.5</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 font-mono tracking-wider">BY RUDRACODES</p>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-1 bg-gray-900/60 p-1.5 rounded-xl border border-gray-800/80">
+                <button onclick="switchTab('chatbot')" id="nav-chatbot" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-white bg-brand-600">
+                    <i class="fa-solid fa-robot"></i> Ruco AI Chat
+                </button>
+                <button onclick="switchTab('formulas')" id="nav-formulas" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-gray-800">
+                    <i class="fa-solid fa-book-bookmark"></i> Formula Hub
+                </button>
+                <button onclick="switchTab('calculators')" id="nav-calculators" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-gray-800">
+                    <i class="fa-solid fa-calculator"></i> Calculators
+                </button>
+                <button onclick="switchTab('planner')" id="nav-planner" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-gray-800">
+                    <i class="fa-solid fa-calendar-check"></i> Study Planner
+                </button>
+            </nav>
+
+            <!-- Founder Badge & Quick Info -->
+            <div class="hidden sm:flex items-center gap-3">
+                <div class="text-right text-xs">
+                    <div class="text-gray-400">Created by</div>
+                    <div class="font-semibold text-brand-500 flex items-center gap-1">
+                        <i class="fa-solid fa-code text-[10px]"></i> Rudra Sharma
+                    </div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 p-0.5 flex items-center justify-center">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Rudra" alt="Founder" class="w-full h-full rounded-full bg-gray-900">
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden flex overflow-x-auto gap-1 p-2 bg-gray-900/90 border-t border-gray-800">
+            <button onclick="switchTab('chatbot')" id="mob-chatbot" class="mob-btn flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white">
+                <i class="fa-solid fa-robot"></i> Chat
+            </button>
+            <button onclick="switchTab('formulas')" id="mob-formulas" class="mob-btn flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400">
+                <i class="fa-solid fa-book-bookmark"></i> Formulas
+            </button>
+            <button onclick="switchTab('calculators')" id="mob-calculators" class="mob-btn flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400">
+                <i class="fa-solid fa-calculator"></i> Solvers
+            </button>
+            <button onclick="switchTab('planner')" id="mob-planner" class="mob-btn flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400">
+                <i class="fa-solid fa-calendar-check"></i> Planner
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+        <!-- SECTION 1: RUCO AI CHATBOT -->
+        <section id="section-chatbot" class="tab-section h-[calc(100vh-140px)] min-h-[500px] flex flex-col gap-4">
+            <div class="glass-panel rounded-2xl flex-1 flex flex-col overflow-hidden border border-gray-800">
+                <!-- Chat Header -->
+                <div class="p-4 border-b border-gray-800 bg-gray-900/50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-brand-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-gray-900 rounded-full"></span>
+                        </div>
+                        <div>
+                            <h2 class="font-semibold text-white flex items-center gap-2">
+                                Ruco AI Study Assistant
+                                <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">Class 11 & 12 Specialized</span>
+                            </h2>
+                            <p class="text-xs text-gray-400">Ask any Physics, Chemistry, Math, or Humanities question!</p>
+                        </div>
+                    </div>
+                    <button onclick="clearChat()" class="text-xs text-gray-400 hover:text-red-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-800 border border-gray-700/50">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Clear Chat
+                    </button>
+                </div>
+
+                <!-- Chat History Area -->
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Welcome Message -->
+                    <div class="flex gap-3 max-w-3xl">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shrink-0 text-xs">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="glass-panel p-4 rounded-2xl rounded-tl-none border border-gray-800 text-sm leading-relaxed text-gray-200">
+                            <p class="font-semibold text-brand-500 mb-1">Hey there! 👋 I'm Ruco AI, created by Rudra Sharma.</p>
+                            <p>I'm tailored to assist high school students with Class 11 and Class 12 concepts, derivations, formulas, step-by-step problem solving, and study strategies. How can I help you excel today?</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Prompts Chips -->
+                <div class="px-4 py-2 border-t border-gray-800/60 bg-gray-900/30 overflow-x-auto flex gap-2">
+                    <span class="text-xs text-gray-500 font-medium my-auto shrink-0">Quick Ask:</span>
+                    <button onclick="sendQuickPrompt('Explain Newton\'s Second Law of Motion with mathematical derivation.')" class="shrink-0 text-xs bg-gray-800/80 hover:bg-brand-600/30 hover:border-brand-500 border border-gray-700 text-gray-300 hover:text-white px-3 py-1.5 rounded-full transition-all">
+                        ⚡ Newton's Second Law
+                    </button>
+                    <button onclick="sendQuickPrompt('Explain the concept of Integration by Parts with a solved example.')" class="shrink-0 text-xs bg-gray-800/80 hover:bg-brand-600/30 hover:border-brand-500 border border-gray-700 text-gray-300 hover:text-white px-3 py-1.5 rounded-full transition-all">
+                        📐 Integration by Parts
+                    </button>
+                    <button onclick="sendQuickPrompt('How to balance Sn2 vs Sn1 organic chemistry reactions?')" class="shrink-0 text-xs bg-gray-800/80 hover:bg-brand-600/30 hover:border-brand-500 border border-gray-700 text-gray-300 hover:text-white px-3 py-1.5 rounded-full transition-all">
+                        🧪 SN1 vs SN2 Reactions
+                    </button>
+                    <button onclick="sendQuickPrompt('Derive Projectile Motion Range and Maximum Height equations.')" class="shrink-0 text-xs bg-gray-800/80 hover:bg-brand-600/30 hover:border-brand-500 border border-gray-700 text-gray-300 hover:text-white px-3 py-1.5 rounded-full transition-all">
+                        🎯 Projectile Derivation
+                    </button>
+                </div>
+
+                <!-- Input Box Area -->
+                <div class="p-3 border-t border-gray-800 bg-gray-900/70">
+                    <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Ask Ruco AI anything about Class 11/12 topics..." class="flex-1 bg-gray-950 border border-gray-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all">
+                        <button type="submit" id="chat-send-btn" class="bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-medium px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 glow-effect">
+                            <span>Send</span>
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: FORMULA HUB -->
+        <section id="section-formulas" class="tab-section hidden space-y-6">
+            <!-- Filter & Search Control Panel -->
+            <div class="glass-panel p-6 rounded-2xl border border-gray-800 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-brand-500"></i> Class 11 & 12 Formula Hub
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Instant formula cards with descriptions, key variables, and SI units.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-3 w-full md:w-auto items-center">
+                    <!-- Class Selector Toggle -->
+                    <div class="bg-gray-950 p-1 rounded-xl border border-gray-800 flex text-xs">
+                        <button onclick="setFormulaClass('11')" id="class-11-btn" class="px-4 py-2 rounded-lg font-semibold transition-all bg-brand-600 text-white">Class 11</button>
+                        <button onclick="setFormulaClass('12')" id="class-12-btn" class="px-4 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">Class 12</button>
+                    </div>
+
+                    <!-- Subject Filter Tabs -->
+                    <div class="bg-gray-950 p-1 rounded-xl border border-gray-800 flex text-xs">
+                        <button onclick="setFormulaSubject('all')" id="subj-all-btn" class="px-3 py-2 rounded-lg font-semibold transition-all bg-gray-800 text-white">All</button>
+                        <button onclick="setFormulaSubject('physics')" id="subj-physics-btn" class="px-3 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">Physics</button>
+                        <button onclick="setFormulaSubject('chemistry')" id="subj-chemistry-btn" class="px-3 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">Chemistry</button>
+                        <button onclick="setFormulaSubject('math')" id="subj-math-btn" class="px-3 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white">Maths</button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative flex-1 md:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-xs text-gray-500"></i>
+                        <input type="text" id="formula-search" oninput="renderFormulas()" placeholder="Search formulas/chapters..." class="w-full bg-gray-950 border border-gray-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formula Grid Display -->
+            <div id="formula-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamic formula cards will be injected here -->
+            </div>
+        </section>
+
+        <!-- SECTION 3: INTERACTIVE CALCULATORS -->
+        <section id="section-calculators" class="tab-section hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-gray-800">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-brand-500"></i> Interactive Formula Solvers
+                </h2>
+                <p class="text-xs text-gray-400 mt-1">Plug in known variables and get instant solutions with step-by-step breakdown.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Kinematics Solver -->
+                <div class="glass-panel p-6 rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <span class="p-2 bg-blue-500/20 text-blue-400 rounded-lg text-xs"><i class="fa-solid fa-person-running"></i></span>
+                            Kinematics: Velocity ($v = u + at$)
+                        </h3>
+                        <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded">Physics - Ch 3</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Initial Vel. ($u$ m/s)</label>
+                            <input type="number" id="calc-u" value="0" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Accel. ($a$ m/s²)</label>
+                            <input type="number" id="calc-a" value="9.8" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Time ($t$ s)</label>
+                            <input type="number" id="calc-t" value="5" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <button onclick="solveKinematics()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-medium py-2 rounded-xl text-sm transition-all">Solve Velocity</button>
+                    <div id="out-kinematics" class="mt-4 p-3 bg-gray-950/80 rounded-xl border border-gray-800 text-xs text-gray-300 hidden"></div>
+                </div>
+
+                <!-- Projectile Motion Solver -->
+                <div class="glass-panel p-6 rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <span class="p-2 bg-purple-500/20 text-purple-400 rounded-lg text-xs"><i class="fa-solid fa-basketball"></i></span>
+                            Projectile Motion Range ($R = \frac{u^2 \sin 2\theta}{g}$)
+                        </h3>
+                        <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded">Physics - Ch 4</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Velocity ($u$ m/s)</label>
+                            <input type="number" id="calc-proj-u" value="25" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Angle ($\theta$ deg)</label>
+                            <input type="number" id="calc-proj-ang" value="45" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <button onclick="solveProjectile()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2 rounded-xl text-sm transition-all">Calculate Range & Max Height</button>
+                    <div id="out-projectile" class="mt-4 p-3 bg-gray-950/80 rounded-xl border border-gray-800 text-xs text-gray-300 hidden"></div>
+                </div>
+
+                <!-- Quadratic Solver -->
+                <div class="glass-panel p-6 rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <span class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs"><i class="fa-solid fa-square-root-variable"></i></span>
+                            Quadratic Equation ($ax^2 + bx + c = 0$)
+                        </h3>
+                        <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded">Maths - Algebra</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Coeff $a$</label>
+                            <input type="number" id="calc-quad-a" value="1" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Coeff $b$</label>
+                            <input type="number" id="calc-quad-b" value="-5" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Coeff $c$</label>
+                            <input type="number" id="calc-quad-c" value="6" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <button onclick="solveQuadratic()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-xl text-sm transition-all">Solve Roots</button>
+                    <div id="out-quadratic" class="mt-4 p-3 bg-gray-950/80 rounded-xl border border-gray-800 text-xs text-gray-300 hidden"></div>
+                </div>
+
+                <!-- Ideal Gas Law Solver -->
+                <div class="glass-panel p-6 rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all">
+                    <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-3">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <span class="p-2 bg-amber-500/20 text-amber-400 rounded-lg text-xs"><i class="fa-solid fa-flask"></i></span>
+                            Ideal Gas Law ($PV = nRT$)
+                        </h3>
+                        <span class="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded">Chemistry - Thermodynamics</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Moles ($n$ mol)</label>
+                            <input type="number" id="calc-gas-n" value="1" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Temp ($T$ K)</label>
+                            <input type="number" id="calc-gas-t" value="298" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 mb-1 block">Volume ($V$ L)</label>
+                            <input type="number" id="calc-gas-v" value="22.4" class="w-full bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <button onclick="solveIdealGas()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 rounded-xl text-sm transition-all">Calculate Pressure ($P$ atm)</button>
+                    <div id="out-idealgas" class="mt-4 p-3 bg-gray-950/80 rounded-xl border border-gray-800 text-xs text-gray-300 hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: STUDY PLANNER & SCHEDULER -->
+        <section id="section-planner" class="tab-section hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Pomodoro Timer Box -->
+                <div class="glass-panel p-6 rounded-2xl border border-gray-800 flex flex-col items-center justify-center text-center">
+                    <div class="w-full flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-stopwatch text-brand-500"></i> Pomodoro Focus Timer
+                        </h3>
+                        <span id="pomo-mode" class="text-xs bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30">Focus Session</span>
+                    </div>
+
+                    <!-- Timer Visual Circle -->
+                    <div class="relative w-48 h-48 my-4 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="96" cy="96" r="80" stroke="currentColor" stroke-width="8" class="text-gray-800" fill="transparent"/>
+                            <circle id="pomo-progress" cx="96" cy="96" r="80" stroke="currentColor" stroke-width="8" class="text-brand-500 transition-all duration-1000" fill="transparent" stroke-dasharray="502" stroke-dashoffset="0"/>
+                        </svg>
+                        <div class="absolute flex flex-col items-center">
+                            <span id="pomo-display" class="text-4xl font-extrabold text-white tracking-wider font-mono">25:00</span>
+                            <span class="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">Stay Focused</span>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="flex gap-3 w-full mt-2">
+                        <button onclick="toggleTimer()" id="pomo-start-btn" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs"></i> <span>Start</span>
+                        </button>
+                        <button onclick="resetTimer()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium px-4 py-2.5 rounded-xl transition-all">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Task Scheduler & Progress Area -->
+                <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-gray-800 flex flex-col">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="font-bold text-white flex items-center gap-2 text-lg">
+                                <i class="fa-solid fa-list-check text-brand-500"></i> High School Study Schedule
+                            </h3>
+                            <p class="text-xs text-gray-400">Manage daily chapter goals, practice sets, and review routines.</p>
+                        </div>
+                        <!-- Task Progress Bar -->
+                        <div class="w-full sm:w-48 bg-gray-900 p-2 rounded-xl border border-gray-800">
+                            <div class="flex justify-between text-[11px] mb-1">
+                                <span class="text-gray-400">Progress</span>
+                                <span id="task-completion-text" class="text-brand-400 font-bold">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+                                <div id="task-progress-bar" class="bg-brand-500 h-full w-0 transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add New Task Form -->
+                    <form onsubmit="addNewTask(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-6">
+                        <input type="text" id="task-title" placeholder="Topic / Chapter name..." required class="sm:col-span-2 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-500">
+                        <select id="task-subject" class="bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Other">Other Subject</option>
+                        </select>
+                        <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white font-medium py-2 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Goal
+                        </button>
+                    </form>
+
+                    <!-- Task List Display -->
+                    <div id="task-list" class="space-y-2 overflow-y-auto max-h-64 flex-1">
+                        <!-- Tasks dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-gray-950/80 py-4 text-center text-xs text-gray-500">
+        <p>Ruco AI © 2026 Developed with ❤️ by <span class="text-brand-500 font-semibold">Rudra Sharma (RudraCodes)</span>. Tailored for high school brilliance.</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /* ==================== GLOBAL APP STATE & DATA ==================== */
+        let currentTab = 'chatbot';
+        let formulaClassFilter = '11';
+        let formulaSubjectFilter = 'all';
+
+        // Formula Database
+        const formulasDB = [
+            // Class 11 Physics
+            { class: '11', subject: 'physics', chapter: 'Kinematics', title: 'Equations of Motion', latex: 'v = u + at, \\quad s = ut + \\frac{1}{2}at^2, \\quad v^2 = u^2 + 2as', desc: 'Relates velocity, acceleration, displacement and time for constant acceleration.', vars: 'u = initial vel, v = final vel, a = accel, t = time, s = displacement' },
+            { class: '11', subject: 'physics', chapter: 'Motion in a Plane', title: 'Projectile Range & Height', latex: 'R = \\frac{u^2 \\sin(2\\theta)}{g}, \\quad H_{max} = \\frac{u^2 \\sin^2\\theta}{2g}', desc: 'Horizontal range and max vertical height achieved by a projectile.', vars: 'u = initial velocity, \\theta = angle with horizontal, g = 9.8 m/s²' },
+            { class: '11', subject: 'physics', chapter: 'Laws of Motion', title: 'Newton\'s Second Law & Momentum', latex: 'F = \\frac{dp}{dt} = ma, \\quad p = mv', desc: 'Force is directly proportional to rate of change of linear momentum.', vars: 'F = force (N), m = mass (kg), a = acceleration (m/s²)' },
+            { class: '11', subject: 'physics', chapter: 'Work, Energy & Power', title: 'Work-Energy Theorem', latex: 'W_{net} = \\Delta K = \\frac{1}{2}mv^2 - \\frac{1}{2}mu^2', desc: 'Net work done on a body equals change in its kinetic energy.', vars: 'W = Work (J), K = Kinetic Energy' },
+            
+            // Class 11 Chemistry
+            { class: '11', subject: 'chemistry', chapter: 'Thermodynamics', title: 'First Law of Thermodynamics', latex: '\\Delta U = q + w', desc: 'Change in internal energy equals heat added to system plus work done on it.', vars: 'U = internal energy, q = heat, w = work' },
+            { class: '11', subject: 'chemistry', chapter: 'States of Matter', title: 'Ideal Gas Law', latex: 'PV = nRT', desc: 'Relates pressure, volume, temperature, and molar amount of an ideal gas.', vars: 'P = pressure, V = volume, n = moles, R = gas constant (8.314 J/mol K)' },
+
+            // Class 11 Math
+            { class: '11', subject: 'math', chapter: 'Sequences & Series', title: 'Arithmetic Progression (AP)', latex: 'a_n = a + (n-1)d, \\quad S_n = \\frac{n}{2}[2a + (n-1)d]', desc: 'Formula for n-th term and sum of first n terms of an AP.', vars: 'a = first term, d = common difference, n = term number' },
+            { class: '11', subject: 'math', chapter: 'Quadratic Equations', title: 'Quadratic Formula', latex: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}', desc: 'Solves roots for second degree polynomial equations.', vars: 'a, b, c = real coefficients' },
+
+            // Class 12 Physics
+            { class: '12', subject: 'physics', chapter: 'Electrostatics', title: 'Coulomb\'s Law', latex: 'F = \\frac{1}{4\\pi\\varepsilon_0} \\frac{|q_1 q_2|}{r^2}', desc: 'Electrostatic force between two stationary point charges.', vars: 'q_1, q_2 = charges, r = distance, \\varepsilon_0 = 8.854 \\times 10^{-12} C^2/Nm^2' },
+            { class: '12', subject: 'physics', chapter: 'Current Electricity', title: 'Ohm\'s Law & Resistance', latex: 'V = IR, \\quad R = \\rho \\frac{l}{A}', desc: 'Current through a conductor is proportional to potential difference.', vars: 'V = voltage, I = current, R = resistance, \\rho = resistivity' },
+
+            // Class 12 Chemistry
+            { class: '12', subject: 'chemistry', chapter: 'Electrochemistry', title: 'Nernst Equation', latex: 'E = E^\\circ - \\frac{0.0591}{n} \\log_{10} Q', desc: 'Calculates cell potential under non-standard conditions at 298K.', vars: 'E = cell potential, E^\\circ = standard potential, n = electron change, Q = reaction quotient' },
+
+            // Class 12 Math
+            { class: '12', subject: 'math', chapter: 'Calculus', title: 'Integration by Parts', latex: '\\int u v \\, dx = u \\int v \\, dx - \\int \\left( u\' \\int v \\, dx \\right) dx', desc: 'Method used to integrate product of two functions using ILATE rule.', vars: 'u, v = differentiable functions of x' },
+            { class: '12', subject: 'math', chapter: 'Matrices', title: 'Matrix Inverse', latex: 'A^{-1} = \\frac{1}{|A|} \\text{adj}(A)', desc: 'Inverse of a non-singular square matrix where determinant is non-zero.', vars: '|A| = determinant, adj(A) = adjoint matrix' }
+        ];
+
+        // Study Tasks State
+        let studyTasks = [
+            { id: 1, title: 'Physics: Review Projectile Motion Derivations', subject: 'Physics', completed: true },
+            { id: 2, title: 'Maths: Solve 10 Integration by Parts questions', subject: 'Mathematics', completed: false },
+            { id: 3, title: 'Chemistry: Revise SN1 & SN2 Mechanisms', subject: 'Chemistry', completed: false }
+        ];
+
+        /* ==================== NAVIGATION LOGIC ==================== */
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+
+            // Update Desktop Nav styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-gray-400 hover:text-white hover:bg-gray-800';
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) activeNav.className = 'nav-btn flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-white bg-brand-600';
+
+            // Update Mobile Nav styles
+            document.querySelectorAll('.mob-btn').forEach(btn => {
+                btn.className = 'mob-btn flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-400';
+            });
+            const activeMob = document.getElementById(`mob-${tabId}`);
+            if(activeMob) activeMob.className = 'mob-btn flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-600 text-white';
+
+            if(tabId === 'formulas') renderFormulas();
+            if(tabId === 'planner') renderTasks();
+        }
+
+        /* ==================== RUCO AI CHATBOT LOGIC ==================== */
+        let chatHistory = [];
+
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('chat-input');
+            const query = inputEl.value.trim();
+            if(!query) return;
+
+            // Render User Message
+            appendChatMessage('user', query);
+            inputEl.value = '';
+
+            // Render Bot Skeleton / Loading state
+            const loadingId = 'loading-' + Date.now();
+            appendLoadingMessage(loadingId);
+
+            try {
+                // Call Gemini API (gemini-3-flash-preview)
+                const systemPrompt = "You are Ruco AI, an expert high-school educational assistant founded by Rudra Sharma (RudraCodes). You specialize in Class 11 and Class 12 STEM, Commerce, and Humanities syllabus. Provide encouraging, step-by-step explanations with clear, structured bullet points and mathematical formulas formatted clearly.";
+                
+                const apiKey = ""; // Canvas runtime auto-injects API key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [
+                        { role: 'user', parts: [{ text: query }] }
+                    ],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                document.getElementById(loadingId)?.remove();
+
+                if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                    const replyText = result.candidates[0].content.parts[0].text;
+                    appendChatMessage('bot', replyText);
+                } else {
+                    appendChatMessage('bot', "I encountered an issue generating a response. Please verify your internet connection or rephrase your topic!");
+                }
+            } catch (error) {
+                console.error("Chat error:", error);
+                document.getElementById(loadingId)?.remove();
+                appendChatMessage('bot', "I couldn't fetch the answer right now. Please try again in a moment!");
+            }
+        }
+
+        function sendQuickPrompt(promptText) {
+            document.getElementById('chat-input').value = promptText;
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        }
+
+        function appendChatMessage(sender, text) {
+            const chatBox = document.getElementById('chat-box');
+            const isUser = sender === 'user';
+            
+            const msgContainer = document.createElement('div');
+            msgContainer.className = `flex gap-3 max-w-3xl ${isUser ? 'ml-auto flex-row-reverse' : ''}`;
+
+            const iconHtml = isUser 
+                ? `<div class="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center text-white shrink-0 text-xs"><i class="fa-solid fa-user"></i></div>`
+                : `<div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shrink-0 text-xs"><i class="fa-solid fa-robot"></i></div>`;
+
+            const bgClass = isUser ? 'bg-brand-600/30 border-brand-500/40' : 'glass-panel border-gray-800';
+
+            msgContainer.innerHTML = `
+                ${iconHtml}
+                <div class="${bgClass} p-4 rounded-2xl ${isUser ? 'rounded-tr-none' : 'rounded-tl-none'} border text-sm leading-relaxed text-gray-200 whitespace-pre-wrap">
+                    ${formatTextWithKaTeX(text)}
+                </div>
+            `;
+
+            chatBox.appendChild(msgContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function appendLoadingMessage(id) {
+            const chatBox = document.getElementById('chat-box');
+            const loaderContainer = document.createElement('div');
+            loaderContainer.id = id;
+            loaderContainer.className = 'flex gap-3 max-w-3xl';
+            loaderContainer.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shrink-0 text-xs">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="glass-panel p-4 rounded-2xl rounded-tl-none border border-gray-800 text-sm text-gray-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-notch fa-spin text-brand-500"></i> Ruco AI is thinking...
+                </div>
+            `;
+            chatBox.appendChild(loaderContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function clearChat() {
+            document.getElementById('chat-box').innerHTML = `
+                <div class="flex gap-3 max-w-3xl">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shrink-0 text-xs">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl rounded-tl-none border border-gray-800 text-sm leading-relaxed text-gray-200">
+                        <p class="font-semibold text-brand-500 mb-1">Chat history cleared!</p>
+                        <p>Ask me a new question on Class 11 or Class 12 concepts.</p>
+                    </div>
+                </div>
+            `;
+            showToast("Chat cleared successfully");
+        }
+
+        function formatTextWithKaTeX(str) {
+            // Simple sanitizer & renderer placeholder for raw equations
+            return str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        /* ==================== FORMULA HUB LOGIC ==================== */
+        function setFormulaClass(cls) {
+            formulaClassFilter = cls;
+            document.getElementById('class-11-btn').className = cls === '11' ? 'px-4 py-2 rounded-lg font-semibold transition-all bg-brand-600 text-white' : 'px-4 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white';
+            document.getElementById('class-12-btn').className = cls === '12' ? 'px-4 py-2 rounded-lg font-semibold transition-all bg-brand-600 text-white' : 'px-4 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white';
+            renderFormulas();
+        }
+
+        function setFormulaSubject(subj) {
+            formulaSubjectFilter = subj;
+            ['all', 'physics', 'chemistry', 'math'].forEach(s => {
+                const btn = document.getElementById(`subj-${s}-btn`);
+                if(btn) {
+                    btn.className = s === subj ? 'px-3 py-2 rounded-lg font-semibold transition-all bg-gray-800 text-white' : 'px-3 py-2 rounded-lg font-semibold transition-all text-gray-400 hover:text-white';
+                }
+            });
+            renderFormulas();
+        }
+
+        function renderFormulas() {
+            const grid = document.getElementById('formula-grid');
+            const searchQuery = document.getElementById('formula-search').value.toLowerCase();
+
+            const filtered = formulasDB.filter(item => {
+                const matchClass = item.class === formulaClassFilter;
+                const matchSubj = formulaSubjectFilter === 'all' || item.subject === formulaSubjectFilter;
+                const matchSearch = item.title.toLowerCase().includes(searchQuery) || item.chapter.toLowerCase().includes(searchQuery) || item.desc.toLowerCase().includes(searchQuery);
+                return matchClass && matchSubj && matchSearch;
+            });
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                        <p class="text-sm">No formulas found matching your criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => {
+                const renderedMath = katex.renderToString(item.latex, { throwOnError: false });
+                return `
+                    <div class="glass-panel p-5 rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20">${item.subject} • ${item.chapter}</span>
+                                <button onclick="copyToClipboard('${item.latex.replace(/\\/g, '\\\\')}')" class="text-gray-500 hover:text-white text-xs" title="Copy TeX Code">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                            <h3 class="font-bold text-white text-base mb-3 group-hover:text-brand-400 transition-colors">${item.title}</h3>
+                            
+                            <!-- KaTeX Formatted Math Box -->
+                            <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 text-center my-3 overflow-x-auto text-brand-200 font-serif">
+                                ${renderedMath}
+                            </div>
+
+                            <p class="text-xs text-gray-400 mt-2">${item.desc}</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-gray-800/60 text-[11px] text-gray-500 font-mono">
+                            <span class="text-gray-400 font-semibold">Variables:</span> ${item.vars}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /* ==================== CALCULATOR SOLVERS LOGIC ==================== */
+        function solveKinematics() {
+            const u = parseFloat(document.getElementById('calc-u').value) || 0;
+            const a = parseFloat(document.getElementById('calc-a').value) || 0;
+            const t = parseFloat(document.getElementById('calc-t').value) || 0;
+            const v = u + (a * t);
+            const s = (u * t) + (0.5 * a * t * t);
+
+            const out = document.getElementById('out-kinematics');
+            out.classList.remove('hidden');
+            out.innerHTML = `
+                <div class="font-bold text-brand-400 mb-1">Calculation Results:</div>
+                <div>• Final Velocity ($v$): <span class="text-white font-semibold">${v.toFixed(2)} m/s</span></div>
+                <div>• Total Displacement ($s$): <span class="text-white font-semibold">${s.toFixed(2)} meters</span></div>
+            `;
+        }
+
+        function solveProjectile() {
+            const u = parseFloat(document.getElementById('calc-proj-u').value) || 0;
+            const angDeg = parseFloat(document.getElementById('calc-proj-ang').value) || 0;
+            const g = 9.8;
+            const angRad = (angDeg * Math.PI) / 180;
+
+            const R = (Math.pow(u, 2) * Math.sin(2 * angRad)) / g;
+            const H = (Math.pow(u, 2) * Math.pow(Math.sin(angRad), 2)) / (2 * g);
+
+            const out = document.getElementById('out-projectile');
+            out.classList.remove('hidden');
+            out.innerHTML = `
+                <div class="font-bold text-purple-400 mb-1">Calculation Results:</div>
+                <div>• Horizontal Range ($R$): <span class="text-white font-semibold">${R.toFixed(2)} meters</span></div>
+                <div>• Maximum Height ($H_{max}$): <span class="text-white font-semibold">${H.toFixed(2)} meters</span></div>
+            `;
+        }
+
+        function solveQuadratic() {
+            const a = parseFloat(document.getElementById('calc-quad-a').value) || 0;
+            const b = parseFloat(document.getElementById('calc-quad-b').value) || 0;
+            const c = parseFloat(document.getElementById('calc-quad-c').value) || 0;
+            const out = document.getElementById('out-quadratic');
+            out.classList.remove('hidden');
+
+            if(a === 0) {
+                out.innerHTML = `<span class="text-red-400">Not a quadratic equation ($a$ cannot be 0).</span>`;
+                return;
+            }
+
+            const disc = b*b - 4*a*c;
+            if(disc > 0) {
+                const x1 = (-b + Math.sqrt(disc)) / (2*a);
+                const x2 = (-b - Math.sqrt(disc)) / (2*a);
+                out.innerHTML = `
+                    <div class="font-bold text-emerald-400 mb-1">Two Real Roots:</div>
+                    <div>$x_1 = ${x1.toFixed(3)}$, $x_2 = ${x2.toFixed(3)}$</div>
+                `;
+            } else if(disc === 0) {
+                const x = -b / (2*a);
+                out.innerHTML = `
+                    <div class="font-bold text-emerald-400 mb-1">One Repeated Root:</div>
+                    <div>$x = ${x.toFixed(3)}$</div>
+                `;
+            } else {
+                const real = (-b / (2*a)).toFixed(2);
+                const imag = (Math.sqrt(-disc) / (2*a)).toFixed(2);
+                out.innerHTML = `
+                    <div class="font-bold text-emerald-400 mb-1">Complex Roots:</div>
+                    <div>$x = ${real} \\pm ${imag}i$</div>
+                `;
+            }
+        }
+
+        function solveIdealGas() {
+            const n = parseFloat(document.getElementById('calc-gas-n').value) || 0;
+            const T = parseFloat(document.getElementById('calc-gas-t').value) || 0;
+            const V = parseFloat(document.getElementById('calc-gas-v').value) || 0;
+            const R = 0.0821; // L·atm/(mol·K)
+
+            const out = document.getElementById('out-idealgas');
+            out.classList.remove('hidden');
+
+            if(V <= 0) {
+                out.innerHTML = `<span class="text-red-400">Volume must be greater than 0.</span>`;
+                return;
+            }
+
+            const P = (n * R * T) / V;
+            out.innerHTML = `
+                <div class="font-bold text-amber-400 mb-1">Calculation Results:</div>
+                <div>• Pressure ($P$): <span class="text-white font-semibold">${P.toFixed(3)} atm</span></div>
+                <div class="text-[10px] text-gray-500 mt-1">Used R constant = 0.0821 L·atm/(mol·K)</div>
+            `;
+        }
+
+        /* ==================== STUDY PLANNER & TIMER LOGIC ==================== */
+        let timerInterval = null;
+        let pomoSecondsLeft = 25 * 60;
+        let pomoTotalSeconds = 25 * 60;
+        let isTimerRunning = false;
+
+        function toggleTimer() {
+            const startBtn = document.getElementById('pomo-start-btn');
+            if(isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                startBtn.innerHTML = `<i class="fa-solid fa-play text-xs"></i> <span>Resume</span>`;
+                startBtn.className = "flex-1 bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 rounded-xl transition-all flex items-center justify-center gap-2";
+            } else {
+                isTimerRunning = true;
+                startBtn.innerHTML = `<i class="fa-solid fa-pause text-xs"></i> <span>Pause</span>`;
+                startBtn.className = "flex-1 bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 rounded-xl transition-all flex items-center justify-center gap-2";
+                
+                timerInterval = setInterval(() => {
+                    if(pomoSecondsLeft > 0) {
+                        pomoSecondsLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        showToast("🎉 Pomodoro Focus Session Complete! Take a 5 min break.");
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            pomoSecondsLeft = 25 * 60;
+            pomoTotalSeconds = 25 * 60;
+            updateTimerDisplay();
+            const startBtn = document.getElementById('pomo-start-btn');
+            startBtn.innerHTML = `<i class="fa-solid fa-play text-xs"></i> <span>Start</span>`;
+            startBtn.className = "flex-1 bg-brand-600 hover:bg-brand-500 text-white font-medium py-2.5 rounded-xl transition-all flex items-center justify-center gap-2";
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(pomoSecondsLeft / 60);
+            const secs = pomoSecondsLeft % 60;
+            document.getElementById('pomo-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            // Progress Ring
+            const circle = document.getElementById('pomo-progress');
+            const circumference = 2 * Math.PI * 80; // 502.65
+            const offset = circumference - (pomoSecondsLeft / pomoTotalSeconds) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function addNewTask(e) {
+            e.preventDefault();
+            const titleInput = document.getElementById('task-title');
+            const subjSelect = document.getElementById('task-subject');
+
+            const newTask = {
+                id: Date.now(),
+                title: titleInput.value.trim(),
+                subject: subjSelect.value,
+                completed: false
+            };
+
+            studyTasks.unshift(newTask);
+            titleInput.value = '';
+            renderTasks();
+            showToast("Study goal added to list!");
+        }
+
+        function toggleTaskComplete(id) {
+            studyTasks = studyTasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            studyTasks = studyTasks.filter(t => t.id !== id);
+            renderTasks();
+            showToast("Goal removed");
+        }
+
+        function renderTasks() {
+            const listEl = document.getElementById('task-list');
+            if(studyTasks.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-6 text-xs text-gray-500">No study goals added yet. Plan your topics above!</div>`;
+            } else {
+                listEl.innerHTML = studyTasks.map(task => `
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-gray-950 border border-gray-800/80 hover:border-gray-700 transition-all">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete(${task.id})" class="w-4 h-4 accent-brand-500 rounded cursor-pointer">
+                            <span class="text-xs text-gray-200 ${task.completed ? 'line-through text-gray-500' : ''}">${task.title}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-gray-400">${task.subject}</span>
+                            <button onclick="deleteTask(${task.id})" class="text-gray-500 hover:text-red-400 text-xs px-1">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Progress Bar Update
+            const completedCount = studyTasks.filter(t => t.completed).length;
+            const percent = studyTasks.length > 0 ? Math.round((completedCount / studyTasks.length) * 100) : 0;
+            document.getElementById('task-completion-text').innerText = `${percent}%`;
+            document.getElementById('task-progress-bar').style.width = `${percent}%`;
+        }
+
+        /* ==================== HELPER UTILITIES ==================== */
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast("Formula LaTeX copied to clipboard!");
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'glass-panel text-white text-xs px-4 py-3 rounded-xl border border-brand-500/40 shadow-lg flex items-center gap-2 animate-bounce pointer-events-auto';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-brand-400"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            renderFormulas();
+            renderTasks();
+            updateTimerDisplay();
+        };
+    </script>
+</body>
+</html>
